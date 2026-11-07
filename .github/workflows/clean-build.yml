@@ -1,0 +1,68 @@
+name: Clean standalone build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generation-plugin:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GRADLE_USER_HOME: ${{ runner.temp }}/generator-gradle
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: generator
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: rtiags/LunarCore-LC
+          ref: f943ea2d916ac74e858c9e07d5aab54e8bc836a7
+          persist-credentials: false
+          path: core
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Assert empty dependency caches
+        run: |
+          test ! -e "$GRADLE_USER_HOME"
+          test ! -e "$RUNNER_TEMP/core-gradle"
+          mkdir -p "$GRADLE_USER_HOME" "$RUNNER_TEMP/core-gradle" "$RUNNER_TEMP/lunar-maven" "$RUNNER_TEMP/lunar-home"
+          git -C generator rev-parse HEAD
+          git -C core rev-parse HEAD
+          java -version
+      - name: Build the compatible LC API from source
+        working-directory: core
+        env:
+          GRADLE_USER_HOME: ${{ runner.temp }}/core-gradle
+        run: |
+          ./gradlew :lbr-api:publishMavenPublicationToDistRepository \
+            --no-daemon --no-build-cache --no-configuration-cache --max-workers=2 \
+            -Duser.home="$RUNNER_TEMP/lunar-home" -Dmaven.repo.local="$RUNNER_TEMP/lunar-maven"
+      - name: Build and test generation plugin with an independent empty cache
+        working-directory: generator
+        run: |
+          ./gradlew :plugin:test :plugin:jar -PlunarCoreRepository="$GITHUB_WORKSPACE/core/build/repo" \
+            --no-daemon --no-build-cache --no-configuration-cache --max-workers=2 \
+            -Duser.home="$RUNNER_TEMP/lunar-home" -Dmaven.repo.local="$RUNNER_TEMP/lunar-maven"
+      - name: Upload reports and plugin
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: clean-generator-${{ github.sha }}
+          retention-days: 14
+          path: |
+            generator/plugin/build/libs/
+            generator/plugin/build/reports/
+            generator/plugin/build/test-results/
+            core/build/reports/
