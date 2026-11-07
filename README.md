@@ -10,7 +10,7 @@ Stop the server. Install the compatible LunarCore build from the bridge PR and `
 
 Generation and management are two separate JARs. The bridge contains no YUNG’s code or data packs. Disabling/reloading the bridge removes management only; do not hot-disable the generation plugin. Worlds containing this plugin's structure data still require the generation plugin on subsequent loads.
 
-Upgrade from the combined PR build by replacing the old generation JAR, keeping the plugin name and `plugins/LunarCoreStructures/structures.json`. Do not keep two copies of the JAR. No configuration migration is required. Settings affect new chunks only and activate after a full restart. If `spigot.yml` has no valid restart script, the Web restart action only stops the server.
+Upgrade from the combined PR build by replacing the old generation JAR, keeping the plugin name and `plugins/LunarCoreStructures/structures.json`. Do not keep two copies of the JAR. No configuration migration is required. Settings affect new chunks only and activate after a full restart. With bridge 0.0.6-preview.1 or later, automatic restart requires a readable restart-script. Without it, Web only prompts for a manual restart and keeps the server running. See the bridge's restart setup guide.
 
 ## Build
 
