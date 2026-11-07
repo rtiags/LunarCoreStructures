@@ -29,3 +29,7 @@
 桥接源码：https://github.com/rtiags/LunarCore-LC/tree/codex/yungs-paper-structures/modules/lbr-structures-web
 
 许可见 LICENSE 与 THIRD-PARTY-NOTICES.md，保留 YUNG’s 原始署名及 LGPL 许可。本移植不代表获得原作者背书。
+
+## 空缓存 CI
+
+默认 development bundle 构建已在全新 Linux runner 上通过，不需要旧缓存、已有服务端目录或预编译 LC API。验证链接、报告与依赖提交见[构建记录](CLEAN-BUILD.md)。

@@ -35,3 +35,7 @@ The LC bridge source is maintained at https://github.com/rtiags/LunarCore-LC/tre
 ## License
 
 See LICENSE and THIRD-PARTY-NOTICES.md. Upstream YUNG’s attribution and LGPL license texts are preserved; this independent port is not endorsed by YUNG-GANG.
+
+## Clean build CI
+
+The default development-bundle build passed on a fresh Linux runner without restored caches or a precompiled LC API. See [verification](CLEAN-BUILD.md) for the run, reports and source pin.
